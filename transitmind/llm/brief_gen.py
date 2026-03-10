@@ -1,28 +1,18 @@
-# llm/brief_gen.py
-import anthropic
-
-client = anthropic.Anthropic()
+import requests
 
 def generate_brief(hex_id, gap_score, demographics):
-    prompt = f"""
-You are an urban policy analyst. Generate a 150-word council brief for this transit gap zone.
+    prompt = f"""You are an urban policy analyst. Write a 100-word council brief.
 
-Zone ID: {hex_id}
-Gap severity score: {gap_score}/1.0
-Demographics:
-- Elderly population (65+): {demographics['elderly_pct']}%
-- Households without a car: {demographics['no_car_pct']}%
-- Median weekly income: ${demographics['median_income']}
+Zone gap score: {gap_score:.2f}/1.0
+Elderly (65+): {demographics['elderly_pct']}%
+No car: {demographics['no_car_pct']}%
+Median income: ${demographics['median_income']}/week
 
-Format:
-- 2 sentence summary of the problem
-- 1 key statistic
-- 1 recommended intervention
-- Estimated residents impacted
-"""
-    message = client.messages.create(
-        model="claude-sonnet-4-20250514",
-        max_tokens=300,
-        messages=[{"role": "user", "content": prompt}]
-    )
-    return message.content[0].text
+Write: problem summary, key stat, recommended intervention."""
+
+    response = requests.post("http://localhost:11434/api/generate", json={
+        "model": "llama3.2",
+        "prompt": prompt,
+        "stream": False
+    })
+    return response.json()["response"]
