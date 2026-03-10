@@ -1,0 +1,2 @@
+Run command: streamlit run transitmind/app.py
+
